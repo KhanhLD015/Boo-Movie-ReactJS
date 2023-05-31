@@ -1,7 +1,6 @@
 import styled from "styled-components";
 import BooLogo from "../../assets/images/boo-logo.png";
 import { GoSearch } from "react-icons/go";
-// import { useEffect, useState } from "react";
 import { useScrollY } from "../hooks";
 
 function Navbar(props) {

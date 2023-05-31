@@ -1,6 +1,7 @@
 import "./App.css";
-import Contents from "./components/Contents/Contents";
+import Content from "./components/Contents/Content";
 import Intro from "./components/Intro/Intro";
+import Menus from "./components/Menu/Menus";
 import Navbar from "./components/Navbar/navbar";
 
 function App() {
@@ -8,7 +9,8 @@ function App() {
     <div className="App">
       <Navbar />
       <Intro />
-      <Contents />
+      <Content />
+      <Menus />
     </div>
   );
 }

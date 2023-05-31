@@ -2,46 +2,50 @@ import styled from "styled-components";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { useEffect, useRef, useState } from "react";
 import { SmoothHorizontalScrolling } from "../utils";
+import { useViewport } from "../hooks";
 
-const movies = [
-  "https://i.pinimg.com/564x/e7/25/a5/e725a5f134277a2e26480db498ebdf48.jpg",
-  "https://i.pinimg.com/564x/a5/66/2d/a5662d6a1e6f5f196c34e2a9f3fabb1c.jpg",
-  "https://i.pinimg.com/564x/31/21/53/3121534a54680876fbc01b9c16240fd1.jpg",
-  "https://i.pinimg.com/564x/ce/e1/55/cee155bbc38c0b2dc1eae838ed510cc5.jpg",
-  "https://i.pinimg.com/564x/c9/c1/cc/c9c1cc9ea31132b52327e8fc51eea6f1.jpg",
-  "https://i.pinimg.com/736x/8b/98/e0/8b98e02ffd887e694ab1c53f733bea97.jpg",
-  "https://i.pinimg.com/564x/ff/51/94/ff51944843c14ad15ea1fc1056ee3bce.jpg",
-  "https://i.pinimg.com/564x/e0/cc/67/e0cc670c8b292b6eb77d406388d50835.jpg",
-];
+// const movies = [
+//   "https://i.pinimg.com/564x/e7/25/a5/e725a5f134277a2e26480db498ebdf48.jpg",
+//   "https://i.pinimg.com/564x/a5/66/2d/a5662d6a1e6f5f196c34e2a9f3fabb1c.jpg",
+//   "https://i.pinimg.com/564x/31/21/53/3121534a54680876fbc01b9c16240fd1.jpg",
+//   "https://i.pinimg.com/564x/ce/e1/55/cee155bbc38c0b2dc1eae838ed510cc5.jpg",
+//   "https://i.pinimg.com/564x/c9/c1/cc/c9c1cc9ea31132b52327e8fc51eea6f1.jpg",
+//   "https://i.pinimg.com/736x/8b/98/e0/8b98e02ffd887e694ab1c53f733bea97.jpg",
+//   "https://i.pinimg.com/564x/ff/51/94/ff51944843c14ad15ea1fc1056ee3bce.jpg",
+//   "https://i.pinimg.com/564x/e0/cc/67/e0cc670c8b292b6eb77d406388d50835.jpg",
+// ];
 
-function Contents(props) {
-  const silderRef = useRef();
+function MoviesRow(props) {
+  const { movies, title } = props;
+
+  const sliderRef = useRef();
   const movieRef = useRef();
   const [dragDown, setDragDown] = useState(0);
   const [dragMove, setDragMove] = useState(0);
   const [isDrag, setIsDrag] = useState(0);
+  const [windowWidth] = useViewport();
 
   const handleScrollRight = () => {
     const maxScrollLeft =
-      silderRef.current.scrollWidth - silderRef.current.clientWidth;
+      sliderRef.current.scrollWidth - sliderRef.current.clientWidth;
     console.log(maxScrollLeft);
-    if (silderRef.current.scrollLeft < maxScrollLeft) {
+    if (sliderRef.current.scrollLeft < maxScrollLeft) {
       SmoothHorizontalScrolling(
-        silderRef.current,
+        sliderRef.current,
         250,
         movieRef.current.clientWidth * 2,
-        silderRef.current.scrollLeft
+        sliderRef.current.scrollLeft
       );
     }
   };
 
   const handleScrollLeft = () => {
-    if (silderRef.current.scrollLeft > 0) {
+    if (sliderRef.current.scrollLeft > 0) {
       SmoothHorizontalScrolling(
-        silderRef.current,
+        sliderRef.current,
         250,
         -movieRef.current.clientWidth * 2,
-        silderRef.current.scrollLeft
+        sliderRef.current.scrollLeft
       );
     }
   };
@@ -74,11 +78,27 @@ function Contents(props) {
     <MoviesRowContainer draggable="false">
       <h1 className="heading">Boo Movie Originals</h1>
       <MoviesSlider
-        ref={silderRef}
+        ref={sliderRef}
         draggable="true"
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
         onDragEnter={onDragEnter}
+        style={
+          movies && movies.length > 0
+            ? {
+                gridTemplateColumns: `repeat(${movies.length}, 
+            ${
+              windowWidth > 1200
+                ? "360px"
+                : windowWidth > 992
+                ? "300px"
+                : windowWidth > 768
+                ? "250px"
+                : "200px"
+            })`,
+              }
+            : {}
+        }
       >
         {movies.map((movie, index) => (
           <div
@@ -104,7 +124,7 @@ function Contents(props) {
   );
 }
 
-export default Contents;
+export default MoviesRow;
 
 const MoviesRowContainer = styled.div`
   background-color: var(--color-background);
@@ -184,7 +204,6 @@ const MoviesRowContainer = styled.div`
 const MoviesSlider = styled.div`
   display: grid;
   gap: 6px;
-  grid-template-columns: repeat(${movies.length}, 360px);
   transition: all 0.3s linear;
   user-select: none;
   overflow-y: hidden;
@@ -193,16 +212,6 @@ const MoviesSlider = styled.div`
   padding-top: 28px;
   padding-bottom: 28px;
   scroll-behavior: smooth; // smooth scrolling
-
-  @media screen and (max-width: 1200px) {
-    grid-template-columns: repeat(${movies.length}, 300px);
-  }
-  @media screen and (max-width: 992px) {
-    grid-template-columns: repeat(${movies.length}, 250px);
-  }
-  @media screen and (max-width: 768px) {
-    grid-template-columns: repeat(${movies.length}, 200px);
-  }
 
   &:hover .movie-item {
     opacity: 0.5;
@@ -220,6 +229,7 @@ const MoviesSlider = styled.div`
     border-radius: 6px;
     transform: center left;
     position: relative;
+    cursor: pointer;
 
     &:hover {
       opacity: 1;
