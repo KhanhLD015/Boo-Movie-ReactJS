@@ -1,5 +1,7 @@
 import styled from "styled-components";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { useEffect, useRef, useState } from "react";
+import { SmoothHorizontalScrolling } from "../utils";
 
 const movies = [
   "https://i.pinimg.com/564x/e7/25/a5/e725a5f134277a2e26480db498ebdf48.jpg",
@@ -13,21 +15,89 @@ const movies = [
 ];
 
 function Contents(props) {
+  const silderRef = useRef();
+  const movieRef = useRef();
+  const [dragDown, setDragDown] = useState(0);
+  const [dragMove, setDragMove] = useState(0);
+  const [isDrag, setIsDrag] = useState(0);
+
+  const handleScrollRight = () => {
+    const maxScrollLeft =
+      silderRef.current.scrollWidth - silderRef.current.clientWidth;
+    console.log(maxScrollLeft);
+    if (silderRef.current.scrollLeft < maxScrollLeft) {
+      SmoothHorizontalScrolling(
+        silderRef.current,
+        250,
+        movieRef.current.clientWidth * 2,
+        silderRef.current.scrollLeft
+      );
+    }
+  };
+
+  const handleScrollLeft = () => {
+    if (silderRef.current.scrollLeft > 0) {
+      SmoothHorizontalScrolling(
+        silderRef.current,
+        250,
+        -movieRef.current.clientWidth * 2,
+        silderRef.current.scrollLeft
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (isDrag) {
+      if (dragMove < dragDown) {
+        handleScrollRight();
+      }
+      if (dragMove > dragDown) {
+        handleScrollLeft();
+      }
+    }
+  }, [dragMove, dragDown, isDrag]);
+
+  const onDragStart = (e) => {
+    setIsDrag(true);
+    setDragDown(e.screenX);
+  };
+
+  const onDragEnd = (e) => {
+    setIsDrag(false);
+  };
+
+  const onDragEnter = (e) => {
+    setDragMove(e.screenX);
+  };
+
   return (
-    <MoviesRowContainer>
+    <MoviesRowContainer draggable="false">
       <h1 className="heading">Boo Movie Originals</h1>
-      <MoviesSlider>
+      <MoviesSlider
+        ref={silderRef}
+        draggable="true"
+        onDragStart={onDragStart}
+        onDragEnd={onDragEnd}
+        onDragEnter={onDragEnter}
+      >
         {movies.map((movie, index) => (
-          <div key={index} className="movie-item">
+          <div
+            key={index}
+            className="movie-item"
+            ref={movieRef}
+            draggable="false"
+          >
             <img src={movie} alt="" />
             <div className="movie-name">Movie Name</div>
           </div>
         ))}
       </MoviesSlider>
-      <div className="btnLeft">
+
+      <div className="btnLeft" onClick={handleScrollLeft}>
         <FiChevronLeft />
       </div>
-      <div className="btnRight">
+
+      <div className="btnRight" onClick={handleScrollRight}>
         <FiChevronRight />
       </div>
     </MoviesRowContainer>
@@ -123,6 +193,16 @@ const MoviesSlider = styled.div`
   padding-top: 28px;
   padding-bottom: 28px;
   scroll-behavior: smooth; // smooth scrolling
+
+  @media screen and (max-width: 1200px) {
+    grid-template-columns: repeat(${movies.length}, 300px);
+  }
+  @media screen and (max-width: 992px) {
+    grid-template-columns: repeat(${movies.length}, 250px);
+  }
+  @media screen and (max-width: 768px) {
+    grid-template-columns: repeat(${movies.length}, 200px);
+  }
 
   &:hover .movie-item {
     opacity: 0.5;
